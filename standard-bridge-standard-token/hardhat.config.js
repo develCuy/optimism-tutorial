@@ -14,14 +14,14 @@ if (!validLength.includes(words)) {
 
 module.exports = {
   networks: {
-    'optimism-goerli': {
+    'optimism-testnet': {
       chainId: 420,
-      url: `https://opt-goerli.g.alchemy.com/v2/${process.env.L2_ALCHEMY_KEY}`,
+      url: `${process.env.L2_TESTNET_API_URL}/${process.env.L2_API_KEY}`,
       accounts: { mnemonic: process.env.MNEMONIC }
     },
     'optimism-mainnet': {
       chainId: 10,
-      url: `https://opt-mainnet.g.alchemy.com/v2/${process.env.L2_ALCHEMY_KEY}`,
+      url: `${process.env.L2_MAINNET_API_URL}/${process.env.L2_API_KEY}`,
       accounts: { mnemonic: process.env.MNEMONIC }
     }
   },

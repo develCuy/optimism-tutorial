@@ -10,7 +10,7 @@ For an L1/L2 token pair to work on the Standard Bridge the L2 token contract mus
 If you do not need any special processing on L2, just the ability to deposit, transfer, and withdraw tokens, you can use [`OptimismMintableERC20Factory`](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/universal/OptimismMintableERC20Factory.sol).
 
 
-**Note:** This tutorial is for the Bedrock release, which is currently running on the Optimism Goerli test network, but not on the production network. Here is the [pre-Bedrock tutorial](https://github.com/ethereum-optimism/optimism-tutorial/tree/01e4f94fa2671cfed0c6c82257345f77b3b858ef/standard-bridge-standard-token).
+**Note:** This tutorial is for the Bedrock release, which is currently running on the Optimism Testnet test network, but not on the production network. Here is the [pre-Bedrock tutorial](https://github.com/ethereum-optimism/optimism-tutorial/tree/01e4f94fa2671cfed0c6c82257345f77b3b858ef/standard-bridge-standard-token).
 
 **Warning:** The standard bridge does *not* support certain ERC-20 configurations:
 
@@ -34,16 +34,15 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 
 1. Edit `.env` to set the deployment parameters:
 
-   - `MNEMONIC`, the mnemonic for an account that has enough ETH for the deployment.
-   - `L1_ALCHEMY_KEY`, the key for the alchemy application for a Goerli endpoint.   
-   - `L2_ALCHEMY_KEY`, the key for the alchemy application for an Optimism Goerli endpoint.
+   - `MNEMONIC`, the mnemonic for an account that has enough SYS for the deployment.
+   - `L1_API_KEY`, the key for the RPC API application for a Layer 1 Testnet endpoint.
+   - `L2_API_KEY`, the key for the RPC API application for a Layer 2 Testnet endpoint.
    - `L1_TOKEN_ADDRESS`, the address of the L1 ERC20 which you want to bridge.
-     The default value, [`0x32B3b2281717dA83463414af4E8CfB1970E56287`](https://goerli.etherscan.io/address/0x32B3b2281717dA83463414af4E8CfB1970E56287) is a test ERC-20 contract on Goerli that lets you call `faucet` to give yourself test tokens.
 
 1. Open the hardhat console.
 
    ```sh
-   yarn hardhat console --network optimism-goerli
+   yarn hardhat console --network optimism-testnet
    ```
 
 1. Connect to `OptimismMintableERC20Factory`. 
@@ -99,7 +98,7 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 1. Get the L1 wallet.
 
    ```js
-   l1Url = `https://eth-goerli.g.alchemy.com/v2/${process.env.L1_ALCHEMY_KEY}`
+   l1Url = `${process.env.L2_TESTNET_API_URL}/${process.env.L1_API_KEY}`
    l1RpcProvider = new ethers.providers.JsonRpcProvider(l1Url)
    hdNode = ethers.utils.HDNode.fromMnemonic(process.env.MNEMONIC)
    privateKey = hdNode.derivePath(ethers.utils.defaultPath).privateKey
@@ -203,7 +202,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    await withdrawalTx2.wait()
    ```
 
-1. Wait the fault challenge period (a short period on Goerli, seven days on the production network) and then finish the withdrawal.
+1. Wait the fault challenge period (a short period on Testnet, seven days on the production network) and then finish the withdrawal.
 
    ```js
    await crossChainMessenger.waitForMessageStatus(withdrawalTx1.hash, optimismSDK.MessageStatus.READY_FOR_RELAY)
