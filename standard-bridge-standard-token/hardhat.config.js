@@ -15,7 +15,7 @@ if (!validLength.includes(words)) {
 module.exports = {
   networks: {
     'optimism-testnet': {
-      chainId: 420,
+      chainId: 57000,
       url: `${process.env.L2_TESTNET_API_URL}/${process.env.L2_API_KEY}`,
       accounts: { mnemonic: process.env.MNEMONIC }
     },
@@ -25,5 +25,14 @@ module.exports = {
       accounts: { mnemonic: process.env.MNEMONIC }
     }
   },
-  solidity: '0.8.13',
+  solidity: {
+    compilers: [
+      {
+        version: '0.8.13',
+      },
+      {
+        version: '0.8.0',
+      },
+    ],
+  },
 }

@@ -24,6 +24,9 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 
    ```sh
    yarn
+   git clone --branch=bridge-dev https://github.com/syscoin/syscoin-bridge
+   npm install --location=global typescript@4.6.4
+   tsc syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.ts
    ```
 
 1. Copy `.env.example` to `.env`.
@@ -98,11 +101,11 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 1. Get the L1 wallet.
 
    ```js
-   l1Url = `${process.env.L2_TESTNET_API_URL}/${process.env.L1_API_KEY}`
+   l1Url = `${process.env.L1_TESTNET_API_URL}/${process.env.L1_API_KEY}`
    l1RpcProvider = new ethers.providers.JsonRpcProvider(l1Url)
-   hdNode = ethers.utils.HDNode.fromMnemonic(process.env.MNEMONIC)
-   privateKey = hdNode.derivePath(ethers.utils.defaultPath).privateKey
-   l1Wallet = new ethers.Wallet(privateKey, l1RpcProvider)
+   l1HdNode = ethers.utils.HDNode.fromMnemonic(process.env.MNEMONIC)
+   l1PrivateKey = l1HdNode.derivePath(ethers.utils.defaultPath).privateKey
+   l1Wallet = new ethers.Wallet(l1PrivateKey, l1RpcProvider)
    ```
 
 1. Get the L1 contract.
@@ -131,18 +134,58 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    optimismSDK = require("@eth-optimism/sdk")
    ```
 
+1. Import the Syscoin Networks.
+
+   ```js
+   syscoinNetworks = require('./syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.js')
+   ```
+
+1. Get the L2 wallet.
+
+   ```js
+   l2Url = `${process.env.L2_TESTNET_API_URL}/${process.env.L2_API_KEY}`
+   l2RpcProvider = new ethers.providers.JsonRpcProvider(l2Url)
+   l2HdNode = ethers.utils.HDNode.fromMnemonic(process.env.MNEMONIC)
+   l2PrivateKey = l1HdNode.derivePath(ethers.utils.defaultPath).privateKey
+   l2Wallet = new ethers.Wallet(l2PrivateKey, l2RpcProvider)
+   ```
+
 1. Create the cross domain messenger.
 
    ```js
+   syscoinNetworks = require('./syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.js')
+   // l1Network = await l1RpcProvider.getNetwork()
    l1ChainId = (await l1RpcProvider.getNetwork()).chainId
+   l1Network = syscoinNetworks.getNetworkByChainId(l1ChainId, syscoinNetworks.networks)
    l2ChainId = (await ethers.provider.getNetwork()).chainId
-   l2Wallet = await ethers.provider.getSigner()
+   l2Network = syscoinNetworks.getNetworkByChainId(l2ChainId, syscoinNetworks.networks)
+   //crossChainMessenger = new optimismSDK.CrossChainMessenger({
+   //   l1ChainId: l1ChainId,
+   //   l2ChainId: l2ChainId,
+   //   l1SignerOrProvider: l1Wallet,
+   //   l2SignerOrProvider: l2Wallet,
+   //   bedrock: true
+   //})
    crossChainMessenger = new optimismSDK.CrossChainMessenger({
-      l1ChainId: l1ChainId,
-      l2ChainId: l2ChainId,
-      l1SignerOrProvider: l1Wallet,
-      l2SignerOrProvider: l2Wallet,
-      bedrock: true
+     l1SignerOrProvider: l1Wallet,
+     l2SignerOrProvider: l2Wallet,
+     l1ChainId: l1ChainId,
+     l2ChainId: l2ChainId,
+     bedrock: true,
+     contracts: { l1: l1Network.contracts, l2: l2Network.contracts },
+     bridges: {
+         ETH: {
+             Adapter: optimismSDK.ETHBridgeAdapter,
+             l1Bridge: l1Network.contracts.L1StandardBridge,
+             l2Bridge: l2Network.contracts.L2StandardBridge,
+         },
+         Standard: {
+             Adapter: optimismSDK.StandardBridgeAdapter,
+             l1Bridge:
+                 l1Network.contracts.L1StandardBridge,
+             l2Bridge: l2Network.contracts.L2StandardBridge,
+         }
+     }
    })
    ```
 
@@ -155,13 +198,14 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    depositTx1 = await crossChainMessenger.approveERC20(l1Contract.address, l2Addr, 1e9)
    await depositTx1.wait()
    ```
+   NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
 
 1. Check your balances on L1 and L2.
    Note that `l1Wallet` and `l2Wallet` have the same address, so it doesn't matter which one we use.
 
    ```js
-   await l1Contract.balanceOf(l1Wallet.address) 
-   await l2Contract.balanceOf(l1Wallet.address)
+   await l1Contract.balanceOf(l1Wallet.address)
+   await l2Contract.balanceOf(l2Wallet.address)
    ```   
 
 1. Do the actual deposit
@@ -170,6 +214,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    depositTx2 = await crossChainMessenger.depositERC20(l1Addr, l2Addr, 1e9)
    await depositTx2.wait()
    ```
+   NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
 
 1. Wait for the deposit to be relayed.
 
@@ -181,7 +226,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
 
    ```js
    await l1Contract.balanceOf(l1Wallet.address) 
-   await l2Contract.balanceOf(l1Wallet.address)
+   await l2Contract.balanceOf(l2Wallet.address)
    ```
 
 #### Withdrawal (from Optimism to L1)
@@ -201,6 +246,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    withdrawalTx2 = await crossChainMessenger.proveMessage(withdrawalTx1.hash)
    await withdrawalTx2.wait()
    ```
+   NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
 
 1. Wait the fault challenge period (a short period on Testnet, seven days on the production network) and then finish the withdrawal.
 
