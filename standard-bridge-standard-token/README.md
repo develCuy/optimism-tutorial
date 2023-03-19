@@ -146,26 +146,17 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    l2Url = `${process.env.L2_TESTNET_API_URL}/${process.env.L2_API_KEY}`
    l2RpcProvider = new ethers.providers.JsonRpcProvider(l2Url)
    l2HdNode = ethers.utils.HDNode.fromMnemonic(process.env.MNEMONIC)
-   l2PrivateKey = l1HdNode.derivePath(ethers.utils.defaultPath).privateKey
+   l2PrivateKey = l2HdNode.derivePath(ethers.utils.defaultPath).privateKey
    l2Wallet = new ethers.Wallet(l2PrivateKey, l2RpcProvider)
    ```
 
 1. Create the cross domain messenger.
 
    ```js
-   syscoinNetworks = require('./syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.js')
-   // l1Network = await l1RpcProvider.getNetwork()
    l1ChainId = (await l1RpcProvider.getNetwork()).chainId
    l1Network = syscoinNetworks.getNetworkByChainId(l1ChainId, syscoinNetworks.networks)
    l2ChainId = (await ethers.provider.getNetwork()).chainId
    l2Network = syscoinNetworks.getNetworkByChainId(l2ChainId, syscoinNetworks.networks)
-   //crossChainMessenger = new optimismSDK.CrossChainMessenger({
-   //   l1ChainId: l1ChainId,
-   //   l2ChainId: l2ChainId,
-   //   l1SignerOrProvider: l1Wallet,
-   //   l2SignerOrProvider: l2Wallet,
-   //   bedrock: true
-   //})
    crossChainMessenger = new optimismSDK.CrossChainMessenger({
      l1SignerOrProvider: l1Wallet,
      l2SignerOrProvider: l2Wallet,
@@ -248,7 +239,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    ```
    NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
 
-1. Wait the fault challenge period (a short period on Testnet, seven days on the production network) and then finish the withdrawal.
+1. Wait the fault challenge period (about one hour on Testnet, seven days on the production network) and then finish the withdrawal.
 
    ```js
    await crossChainMessenger.waitForMessageStatus(withdrawalTx1.hash, optimismSDK.MessageStatus.READY_FOR_RELAY)
