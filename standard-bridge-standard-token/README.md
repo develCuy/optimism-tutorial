@@ -24,9 +24,6 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 
    ```sh
    yarn
-   git clone --branch=bridge-dev https://github.com/syscoin/syscoin-bridge
-   npm install --location=global typescript@4.6.4
-   tsc syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.ts
    ```
 
 1. Copy `.env.example` to `.env`.
@@ -137,7 +134,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
 1. Import the Syscoin Networks.
 
    ```js
-   syscoinNetworks = require('./syscoin-bridge/blockchain/NevmRolluxBridge/config/networks.js')
+   syscoinNetworks = require('syscoin-networks')
    ```
 
 1. Get the L2 wallet.
@@ -230,14 +227,13 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    ```
 
 1. Wait until the root state is published on L1, and then prove the withdrawal.
-   This is likely to take less than 240 seconds.
+   This is likely to take about 2 hours.
 
    ```js
    await crossChainMessenger.waitForMessageStatus(withdrawalTx1.hash, optimismSDK.MessageStatus.READY_TO_PROVE)
    withdrawalTx2 = await crossChainMessenger.proveMessage(withdrawalTx1.hash)
    await withdrawalTx2.wait()
    ```
-   NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
 
 1. Wait the fault challenge period (about one hour on Testnet, seven days on the production network) and then finish the withdrawal.
 
