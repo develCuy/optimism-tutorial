@@ -90,7 +90,7 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 1. Get the L2 contract.
 
    ```js
-   l2Contract = new ethers.Contract(l2Addr, optimismMintableERC20Data.abi, await ethers.getSigner())   
+   l2Contract = new ethers.Contract(l2Addr, optimismMintableERC20Data.abi, await ethers.getSigner())
    ```
 
 ### Get setup for L1 (provider, wallet, tokens, etc)
@@ -108,7 +108,7 @@ If you do not need any special processing on L2, just the ability to deposit, tr
 1. Get the L1 contract.
 
    ```js
-   l1Factory = await ethers.getContractFactory("OptimismUselessToken")
+   l1Factory = await ethers.getContractFactory("SyscoinUselessToken")
    l1Contract = new ethers.Contract(process.env.L1_TOKEN_ADDRESS, l1Factory.interface, l1Wallet)
    ```
 
@@ -240,7 +240,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    ```js
    await crossChainMessenger.waitForMessageStatus(withdrawalTx1.hash, optimismSDK.MessageStatus.READY_FOR_RELAY)
    withdrawalTx3 = await crossChainMessenger.finalizeMessage(withdrawalTx1.hash)
-   await withdrawalTx3.wait()   
+   await withdrawalTx3.wait()
    ```
 
 
@@ -248,6 +248,6 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    The balance on L2 should be back to zero.
 
    ```js
-   await l1Contract.balanceOf(l1Wallet.address) 
+   await l1Contract.balanceOf(l1Wallet.address)
    await l2Contract.balanceOf(l1Wallet.address)
    ```
