@@ -183,7 +183,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
    The L2 address is necessary to know which bridge is responsible and needs the allowance.
 
    ```js
-   depositTx1 = await crossChainMessenger.approveERC20(l1Contract.address, l2Addr, 1e9)
+   depositTx1 = await crossChainMessenger.approveERC20(l1Contract.address, l2Addr, 1e15)
    await depositTx1.wait()
    ```
    NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
@@ -199,7 +199,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
 1. Do the actual deposit
 
    ```js
-   depositTx2 = await crossChainMessenger.depositERC20(l1Addr, l2Addr, 1e9)
+   depositTx2 = await crossChainMessenger.depositERC20(l1Addr, l2Addr, 1e15)
    await depositTx2.wait()
    ```
    NOTE: Syscoin NEVM L1 has a block time of 2.5 minutes. Please be patient while waiting for block confirmations on the network.
@@ -213,7 +213,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
 1. Check your balances on L1 and L2.
 
    ```js
-   await l1Contract.balanceOf(l1Wallet.address) 
+   await l1Contract.balanceOf(l1Wallet.address)
    await l2Contract.balanceOf(l2Wallet.address)
    ```
 
@@ -222,7 +222,7 @@ Create and use [`CrossDomainMessenger`](https://sdk.optimism.io/classes/crosscha
 1. Initiate the withdrawal on L2
 
    ```js
-   withdrawalTx1 = await crossChainMessenger.withdrawERC20(l1Addr, l2Addr, 1e9)
+   withdrawalTx1 = await crossChainMessenger.withdrawERC20(l1Addr, l2Addr, 1e15)
    await withdrawalTx1.wait()
    ```
 
